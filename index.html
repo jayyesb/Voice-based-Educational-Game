@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Speech Recording</title>
+</head>
+<body>
+
+    <canvas id="game" width="800" height="600" style="border:1px solid black;background:lightcoral;"></canvas>
+  <script>
+    window.SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
+    let finalTranscript = '';
+    let recognition = new window.SpeechRecognition();
+
+    var canvas=document.getElementById("game");
+    var ctx=canvas.getContext("2d");
+
+    var cW=canvas.width;
+    var cH=canvas.height;
+
+    var dog=new Image();
+    dog.src="assets/doggy.png";
+    dog.onload=function(){
+        console.log('Dog Loaded');
+    }
+
+    var cat=new Image();
+    cat.src="assets/catty.jpg";
+    cat.onload=function(){
+        console.log('cat Loaded');
+    }
+
+    var bunny=new Image();
+    bunny.src="assets/bunny.png";
+    bunny.onload=function(){
+        console.log('Bunny Loaded');
+        render();
+    }
+
+    ctx.font="normal 36pt Verdana";
+    ctx.fillStyle="green";
+
+    var ans,score=0;
+    var msg="START";
+    
+
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 10;
+    recognition.continuous = true;
+
+    
+
+    function render(){
+        ctx.drawImage(dog,150,200,128,128);
+        ctx.drawImage(cat,350,200,128,128);
+        ctx.drawImage(bunny,550,200,128,128);
+        ctx.fillText("Say Right !",300,80);
+        ctx.fillText("Attempts: "+score,10,150);
+        ctx.fillText(msg,330,500);
+        console.log("Hello");
+    }
+
+    function renderText(){
+        ctx.clearRect(0,100,800,60);
+        ctx.clearRect(0,450,800,60);
+        ctx.font="normal 36pt Verdana";
+        ctx.fillStyle="green";
+        ctx.fillText("Attempts: "+score,10,150);
+        ctx.fillText(msg,330,500);
+    }
+
+    function renderError(str,x){
+        var m;
+        ctx.font="normal 12pt verdana";
+        ctx.clearRect(0,520,800,100);
+        if(x==0){
+            m=str+" is not a valid command. Please say valid command";
+        }else if(x==1){
+            m=str;
+        }
+        ctx.fillText(m,30,550);
+    }
+
+    function reset(){
+        ans=Math.ceil(Math.random()*3);
+        console.log(ans);
+        msg="GUESS";
+    }
+
+    recognition.onresult = (event) => {
+      let interimTranscript = '';
+      for (let i = event.resultIndex, len = event.results.length; i < len; i++) {
+        let transcript = event.results[i][0].transcript;
+        if (event.results[i].isFinal) {
+          finalTranscript += transcript;
+        } else {
+          interimTranscript += transcript;
+        }
+      }
+
+      //document.querySelector('body').innerHTML = finalTranscript + '<i style="color:#ddd;">' + interimTranscript + '</>';
+      checkText();
+       function checkText()
+    { 
+           var result;
+        if(finalTranscript.trim()=="dog" || finalTranscript.trim()=="cat" || finalTranscript.trim()=="Bunny" || finalTranscript.trim()=="start")
+        {  
+            if(msg=="GUESS"){
+                if((finalTranscript.trim()=="dog" && ans==1) || (finalTranscript.trim()=="cat" && ans==2) || (finalTranscript.trim()=="Bunny" && ans==3))
+                {
+                   result=" is RIGHT";
+                    console.log(result);
+                }else{
+                    result=" is WRONG";
+                    console.log(result);   
+                }
+                msg="START";
+                score++;
+                console.log(finalTranscript.trim()+result);
+                renderError(finalTranscript.trim()+result,1);
+            }
+            if(finalTranscript.trim()=="start"){
+                reset(); 
+            }
+            renderText();
+        }else{
+            renderError(finalTranscript.trim(),0);
+        }
+        console.log(finalTranscript);
+        finalTranscript="";
+        interimTranscript="";
+    }
+}
+    recognition.start();
+    
+
+/*
+
+if(finalTranscript.trim()=="dog" && ans==1){
+            console.log("Dog");
+           score++; 
+        }if(finalTranscript.trim()== "cat" && ans==2){
+            console.log("Two"+finalTranscript);
+            score++;
+        }if(finalTranscript.trim()=="Bunny" && ans==3){
+            console.log("Three"+finalTranscript);  
+            score++; 
+        }if(score!=0){
+            console.log("Wrong");  
+            score--; 
+        }
+
+*/
+
+  </script>
+</body>
+</html>
